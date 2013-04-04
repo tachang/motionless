@@ -77,14 +77,16 @@ class Map(object):
     FORMATS = ['png','png8','png32','gif','jpg','jpg-baseline']
     MAX_X = 640
     MAX_Y = 640
-    def __init__(self, size_x, size_y, maptype):
+    def __init__(self, size_x, size_y, maptype, scale=1,zoom=16):
 
         self.base_url = 'http://maps.google.com/maps/api/staticmap?'
         self.size_x = size_x 
         self.size_y = size_y 
         self.sensor = False 
         self.format = 'png'
-        self.maptype = maptype 
+        self.maptype = maptype
+        self.scale = scale
+        self.zoom = zoom
 
     def __str__(self):
         return self.generate_url()                        
@@ -132,7 +134,7 @@ class CenterMap(Map):
 
     def generate_url(self):
         self.check_parameters();
-        url = "%smaptype=%s&format=%s&center=%s&zoom=%s&size=%sx%s&sensor=%s" % (
+        url = "%smaptype=%s&format=%s&center=%s&zoom=%s&size=%sx%s&scale=%s&sensor=%s" % (
             self.base_url,
             self.maptype,
             self.format,
@@ -140,6 +142,7 @@ class CenterMap(Map):
             self.zoom,
             self.size_x,
             self.size_y,
+            self.scale,
             self._get_sensor())
     
         self._check_url(url)
@@ -171,8 +174,9 @@ class VisibleMap(Map):
         return url
 
 class DecoratedMap(Map):
-    def __init__(self, size_x=400, size_y=400,maptype='roadmap',region=False,fillcolor='green',pathweight=None,pathcolor=None,):
-        Map.__init__(self,size_x=size_x, size_y=size_y,maptype=maptype)                    
+
+    def __init__(self, size_x=400, size_y=400,maptype='roadmap',region=False,fillcolor='green',pathweight=None,pathcolor=None,scale=1,zoom=16):
+        Map.__init__(self,size_x=size_x, size_y=size_y,maptype=maptype,scale=scale,zoom=zoom)
         self.markers = []
         self.fillcolor = fillcolor
 	self.pathweight = pathweight
@@ -262,12 +266,14 @@ class DecoratedMap(Map):
 
     def generate_url(self):
         self.check_parameters();
-        url = "%smaptype=%s&format=%s&size=%sx%s&sensor=%s" % (
+        url = "%smaptype=%s&format=%s&size=%sx%s&scale=%s&zoom=%s&sensor=%s" % (
             self.base_url,
             self.maptype,
             self.format,
             self.size_x,
             self.size_y,
+            self.scale,
+            self.zoom,
             self._get_sensor())
 
         if len(self.markers) > 0:
